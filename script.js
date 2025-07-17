@@ -121,6 +121,25 @@ function loadBooks() {
   });
 }
 
+const searchFinishedInput = document.getElementById('search-finished');
+
+if (searchFinishedInput) {
+  searchFinishedInput.addEventListener('input', () => {
+    const filter = searchFinishedInput.value.toLowerCase();
+    const finishedBooks = document.querySelectorAll('#books-finished .book-card');
+
+    finishedBooks.forEach(card => {
+      const title = card.querySelector('h3').textContent.toLowerCase();
+      const authors = card.querySelector('p').textContent.toLowerCase();
+      if (title.includes(filter) || authors.includes(filter)) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  });
+}
+
 // Ajouter un livre dans la liste (param 2 = conteneur, 3 = est fini)
 function addBookToList(book, containerId = 'books-current', isFinished = false) {
   const bookCard = document.createElement('div');

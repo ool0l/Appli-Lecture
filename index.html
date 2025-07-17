@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
-  <img src="favicon.ico" alt="Logo" class="logo" />
 </head>
 <body>
 
@@ -15,6 +14,7 @@
   <div id="overlay" class="hidden"></div>
 
   <header>
+    <img src="favicon.ico" alt="Logo" class="logo" />
     <h1>📖 Mon journal de lecture</h1>
   </header>
 
@@ -26,10 +26,14 @@
 
     <section id="finished-reading">
       <h2>✅ Livres lus</h2>
+      <p id="finished-books-count">Vous avez lu <span id="count">0</span> livres !</p>
       <div id="books-finished"></div>
+      <input type="text" id="search-current" placeholder="Rechercher dans les livres en cours..." />
     </section>
 
     <button id="add-book-btn">+ Ajouter un livre</button>
+
+    
 
     <!-- Modal (popup) -->
     <div id="modal" class="hidden">

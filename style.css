@@ -390,3 +390,61 @@ input[type="number"] {
   background-color: #e0ffe0;
   border-left: 5px solid #4caf50;
 }
+#search-finished {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 1rem;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--primary-color);
+  margin-bottom: 15px;
+  outline-offset: 2px;
+  transition: border-color 0.3s ease;
+}
+
+#search-finished:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+#books-container, #books-finished {
+  max-height: 450px;
+  overflow-y: auto;
+  padding-right: 5px;
+  /* déjà en grid pour #books-container, applique aussi pour #books-finished si tu veux */
+}
+
+#book-list {
+  display: flex;
+  gap: 30px;
+  max-width: 900px;
+  margin: auto;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+#books-current {
+  flex: 1 1 400px;
+}
+
+#books-finished {
+  flex: 1 1 400px;
+  background: #f0f8f0;
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+h2 {
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 6px;
+  margin-bottom: 15px;
+  color: var(--primary-color-dark);
+}
+#add-book-btn {
+  box-shadow: 0 4px 8px rgba(74, 144, 226, 0.4);
+}
+
+.select-book, .delete-book {
+  box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+}
+input[type="text"], input[type="number"], input[type="range"], button {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+}
