@@ -540,7 +540,8 @@ body.dark select {
 }
 
 body.dark .theme-toggle {
-  background: #333;
+  background: #121212;
+  color: f1f1f1;
 }
 
 body.dark .theme-toggle:hover {

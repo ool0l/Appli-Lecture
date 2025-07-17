@@ -292,6 +292,15 @@ toggleBtn.addEventListener('click', () => {
   document.body.classList.toggle('dark');
   const isDark = document.body.classList.contains('dark');
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  icon.textContent = isDark ? '☀️' : '🌙';
+
+  // Animation icône
+  icon.style.transition = 'transform 0.5s ease';
+  icon.style.transform = 'rotate(360deg)';
+
+  setTimeout(() => {
+    icon.style.transform = 'rotate(0deg)';
+    icon.textContent = isDark ? '☀️' : '🌙';
+  }, 500);
 });
+
 
