@@ -75,69 +75,70 @@ searchBtn.addEventListener('click', async () => {
 });
 
 function addBookToList(book) {
-  const totalPages = book.pageCount || 0;
   const bookCard = document.createElement('div');
   bookCard.className = 'book-card';
+
+  const totalPages = book.pageCount || 0;
 
   bookCard.innerHTML = `
     <h3>${book.title || "Titre inconnu"}</h3>
     <p><strong>Auteur(s):</strong> ${book.authors ? book.authors.join(", ") : "Inconnu"}</p>
     <p><strong>Pages totales:</strong> ${totalPages}</p>
 
-    <label>Pages lues :
-      <input type="number" class="pages-read" min="0" max="${totalPages}" value="0" />
-    </label>
-    <p>Progression : <span class="progress">0%</span></p>
-
-    <label>Note sur 10 :
-      <input type="number" class="book-rating" min="0" max="10" />
+    <label>
+      Pages lues: 
+      <input type="number" class="pages-read" min="0" max="${totalPages}" value="0" style="width:60px;" />
     </label>
 
-    <label>Commentaire :
-      <textarea class="book-comment" rows="2" placeholder="Ton avis perso..."></textarea>
+    <div class="progress-bar-container" style="background:#eee; border-radius:10px; overflow:hidden; width: 100%; height: 20px; margin: 10px 0;">
+      <div class="progress-bar" style="background:#4caf50; height: 100%; width: 0%; transition: width 0.5s ease;"></div>
+    </div>
+    <p>Progression: <span class="progress">0%</span></p>
+
+    <label>
+      Note perso (0-10) : 
+      <input type="range" class="personal-rating" min="0" max="10" value="0" step="1" />
+      <span class="rating-value">0</span>/10
     </label>
 
-    ${book.imageLinks?.thumbnail ? `<img src="${book.imageLinks.thumbnail}" alt="Couverture" style="max-height: 120px;">` : ""}
-    <button class="delete-book">🗑️ Supprimer</button>
+    ${book.imageLinks?.thumbnail ? `<img src="${book.imageLinks.thumbnail.replace("http://", "https://")}" alt="Couverture" style="max-height: 150px; display: block; margin-top: 10px;">` : ""}
+
+    <button class="delete-book" style="margin-top: 10px;">🗑️ Supprimer</button>
   `;
 
-  // === Suppression avec confirmation ===
-  bookCard.querySelector('.delete-book').addEventListener('click', () => {
+  // Suppression avec confirmation
+  const deleteBtn = bookCard.querySelector('.delete-book');
+  deleteBtn.addEventListener('click', () => {
     if (confirm(`Supprimer "${book.title}" de ta liste ?`)) {
       bookCard.remove();
     }
   });
 
-  // === Suivi de progression + déplacement si terminé ===
+  // Mise à jour progression en pages lues et barre
   const pagesReadInput = bookCard.querySelector('.pages-read');
   const progressSpan = bookCard.querySelector('.progress');
+  const progressBar = bookCard.querySelector('.progress-bar');
 
   pagesReadInput.addEventListener('input', () => {
     let val = parseInt(pagesReadInput.value);
     if (isNaN(val) || val < 0) val = 0;
     if (val > totalPages) val = totalPages;
     pagesReadInput.value = val;
-
     const percent = totalPages === 0 ? 0 : Math.round((val / totalPages) * 100);
     progressSpan.textContent = `${percent}%`;
-
-    // Si progression à 100%, on déplace dans Livres lus
-    const currentContainer = document.getElementById('books-current');
-    const finishedContainer = document.getElementById('books-finished');
-
-    if (percent === 100 && bookCard.parentElement === currentContainer) {
-      currentContainer.removeChild(bookCard);
-      finishedContainer.appendChild(bookCard);
-    } else if (percent < 100 && bookCard.parentElement === finishedContainer) {
-      finishedContainer.removeChild(bookCard);
-      currentContainer.appendChild(bookCard);
-    }
+    progressBar.style.width = percent + '%';
   });
 
-  // Ajout initial dans Livres en cours
-  document.getElementById('books-current').appendChild(bookCard);
+  // Mise à jour de la note perso
+  const ratingInput = bookCard.querySelector('.personal-rating');
+  const ratingValue = bookCard.querySelector('.rating-value');
+  ratingInput.addEventListener('input', () => {
+    ratingValue.textContent = ratingInput.value;
+  });
+
+  // Remplace cette ligne :
+// booksContainer.appendChild(bookCard);
+
+// Par une insertion dans le bon conteneur, par exemple livres en cours :
+document.getElementById('books-current').appendChild(bookCard);
 }
-
-
-  booksContainer.appendChild(bookCard);
-
