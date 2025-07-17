@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
+  <!-- Overlay pour le fond flouté -->
+  <div id="overlay" class="hidden"></div>
+
   <header>
     <h1>📖 Mon journal de lecture</h1>
   </header>
@@ -18,6 +22,18 @@
         <!-- Les livres apparaîtront ici -->
       </div>
       <button id="add-book-btn">+ Ajouter un livre</button>
+
+      <!-- Modal (popup) -->
+      <div id="modal" class="hidden">
+        <div class="modal-content">
+          <h3>Ajouter un livre</h3>
+          <input type="text" id="book-title-input" placeholder="Titre du livre" />
+          <div class="modal-actions">
+            <button id="cancel-btn">Annuler</button>
+            <button id="search-btn">Rechercher</button>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 
