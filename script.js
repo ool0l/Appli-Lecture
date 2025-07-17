@@ -61,13 +61,19 @@ searchBtn.addEventListener('click', async () => {
 
 
     const selectBtn = resultCard.querySelector('.select-book');
-    selectBtn.addEventListener('click', () => {
-      addBookToList(book);
-      closeModal();
-    });
+   selectBtn.addEventListener('click', () => {
+  const pagesInput = document.getElementById('book-pages-input');
+  const manualPages = parseInt(pagesInput.value.trim());
+  const finalPages = !isNaN(manualPages) && manualPages > 0 ? manualPages : (book.pageCount || 0);
+
+  book.pageCount = finalPages; // Remplace la valeur venant de l'API
+  addBookToList(book);
+  closeModal();
+});
+
 
     resultsDiv.appendChild(resultCard);
-  });
+  }); selectBtn.
 });
 
 function addBookToList(book) {
