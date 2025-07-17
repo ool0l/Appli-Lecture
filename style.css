@@ -635,4 +635,67 @@ body.dark .progress {
 body.dark .rating-value {
   color: #f48fb1 !important;
 }
+body.dark {
+  background: #121212 !important;
+  color: #f1f1f1 !important;
+}
+
+body.dark section {
+  background-color: #1c1c1c !important;
+  color: #f1f1f1 !important;
+}
+
+body.dark header h1 {
+  color: #90caf9 !important;
+  text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.1);
+}
+
+body.dark h2 {
+  color: #bbdefb !important;
+  border-bottom: 2px solid #ff4081;
+}
+
+body.dark #add-book-btn {
+  background: linear-gradient(to right, #555, #888) !important;
+  color: white !important;
+}
+
+body.dark .select-book,
+body.dark .delete-book,
+body.dark #search-btn,
+body.dark #cancel-btn {
+  background-color: #444 !important;
+  color: white !important;
+}
+
+body.dark .select-book:hover,
+body.dark .delete-book:hover,
+body.dark #search-btn:hover {
+  background-color: #666 !important;
+}
+
+body.dark input,
+body.dark textarea,
+body.dark select {
+  background-color: #2a2a2a !important;
+  color: #fff !important;
+  border: 1px solid #555 !important;
+}
+
+body.dark #modal {
+  background-color: #1e1e1e !important;
+  color: white !important;
+}
+
+body.dark #overlay {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+body.dark .progress {
+  color: #90caf9 !important;
+}
+
+body.dark .rating-value {
+  color: #f48fb1 !important;
+}
 
