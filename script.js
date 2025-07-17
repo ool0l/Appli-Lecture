@@ -90,10 +90,11 @@ function addBookToList(book) {
       <input type="number" class="pages-read" min="0" max="${totalPages}" value="0" style="width:60px;" />
     </label>
 
-    <div class="progress-bar-container" style="background:#eee; border-radius:10px; overflow:hidden; width: 100%; height: 20px; margin: 10px 0;">
-      <div class="progress-bar" style="background:#4caf50; height: 100%; width: 0%; transition: width 0.5s ease;"></div>
-    </div>
-    <p>Progression: <span class="progress">0%</span></p>
+    <div class="progress-bar-outer">
+  <div class="progress-bar-inner"></div>
+</div>
+<p>Progression : <span class="progress">0%</span></p>
+
 
     <label>
       Note perso (0-10) : 
@@ -117,7 +118,7 @@ function addBookToList(book) {
   // Mise à jour progression en pages lues et barre
   const pagesReadInput = bookCard.querySelector('.pages-read');
   const progressSpan = bookCard.querySelector('.progress');
-  const progressBar = bookCard.querySelector('.progress-bar');
+  const progressBar = bookCard.querySelector('.progress-bar-inner');
 
   pagesReadInput.addEventListener('input', () => {
     let val = parseInt(pagesReadInput.value);
