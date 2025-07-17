@@ -104,3 +104,32 @@ button:hover {
   gap: 10px;
   justify-content: flex-end;
 }
+#results {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+
+#results .book-card {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: var(--radius);
+}
+
+.select-book, .delete-book {
+  margin-top: 10px;
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.select-book:hover, .delete-book:hover {
+  background-color: #5852d6;
+}

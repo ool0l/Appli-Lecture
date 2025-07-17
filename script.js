@@ -4,6 +4,12 @@ const overlay = document.getElementById('overlay');
 const cancelBtn = document.getElementById('cancel-btn');
 const searchBtn = document.getElementById('search-btn');
 const booksContainer = document.getElementById('books-container');
+const bookInput = document.getElementById('book-title-input');
+
+// Crée une div pour afficher les résultats
+const resultsDiv = document.createElement('div');
+resultsDiv.id = 'results';
+document.querySelector('.modal-content').appendChild(resultsDiv);
 
 addBookBtn.addEventListener('click', () => {
   modal.classList.remove('hidden');
@@ -11,24 +17,52 @@ addBookBtn.addEventListener('click', () => {
 });
 
 cancelBtn.addEventListener('click', () => {
-  modal.classList.add('hidden');
-  overlay.classList.add('hidden');
+  closeModal();
 });
 
+function closeModal() {
+  modal.classList.add('hidden');
+  overlay.classList.add('hidden');
+  bookInput.value = "";
+  resultsDiv.innerHTML = "";
+}
+
 searchBtn.addEventListener('click', async () => {
-  const title = document.getElementById('book-title-input').value.trim();
+  const title = bookInput.value.trim();
   if (!title) return;
 
-  const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}`);
+  const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}&maxResults=10`);
   const data = await response.json();
 
   if (!data.items || data.items.length === 0) {
-    alert("Aucun livre trouvé.");
+    resultsDiv.innerHTML = "<p>Aucun résultat trouvé.</p>";
     return;
   }
 
-  const book = data.items[0].volumeInfo;
+  resultsDiv.innerHTML = ""; // Vide avant nouvelle recherche
 
+  data.items.forEach((item) => {
+    const book = item.volumeInfo;
+    const resultCard = document.createElement('div');
+    resultCard.className = 'book-card';
+    resultCard.innerHTML = `
+      <h4>${book.title || "Titre inconnu"}</h4>
+      <p><strong>Auteur(s):</strong> ${book.authors ? book.authors.join(", ") : "Inconnu"}</p>
+      <p><strong>Pages:</strong> ${book.pageCount || "?"}</p>
+      ${book.imageLinks?.thumbnail ? `<img src="${book.imageLinks.thumbnail}" alt="Couverture" style="max-height: 120px;">` : ""}
+      <button class="select-book">Ajouter ce livre</button>
+    `;
+
+    resultCard.querySelector('.select-book').addEventListener('click', () => {
+      addBookToList(book);
+      closeModal();
+    });
+
+    resultsDiv.appendChild(resultCard);
+  });
+});
+
+function addBookToList(book) {
   const bookCard = document.createElement('div');
   bookCard.className = 'book-card';
   bookCard.innerHTML = `
@@ -36,11 +70,12 @@ searchBtn.addEventListener('click', async () => {
     <p><strong>Auteur(s):</strong> ${book.authors ? book.authors.join(", ") : "Inconnu"}</p>
     <p><strong>Pages:</strong> ${book.pageCount || "?"}</p>
     ${book.imageLinks?.thumbnail ? `<img src="${book.imageLinks.thumbnail}" alt="Couverture" style="max-height: 150px;">` : ""}
+    <button class="delete-book">🗑️ Supprimer</button>
   `;
 
-  booksContainer.appendChild(bookCard);
+  bookCard.querySelector('.delete-book').addEventListener('click', () => {
+    bookCard.remove();
+  });
 
-  modal.classList.add('hidden');
-  overlay.classList.add('hidden');
-  document.getElementById('book-title-input').value = "";
-});
+  booksContainer.appendChild(bookCard);
+}
