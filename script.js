@@ -47,8 +47,7 @@ searchBtn.addEventListener('click', async () => {
     const book = item.volumeInfo;
 
     const resultCard = document.createElement('div');
-    resultCard.className = 'book-card';
-    resultCard.innerHTML = `
+    resultCard.className = 'book-card';resultCard.innerHTML = `
   ${book.imageLinks?.thumbnail ? `<img src="${book.imageLinks.thumbnail}" alt="Couverture" style="max-height: 100px;">` : ""}
   <div class="info">
     <h4>${book.title || "Titre inconnu"}</h4>
@@ -57,6 +56,8 @@ searchBtn.addEventListener('click', async () => {
   </div>
   <button class="select-book">Ajouter ce livre</button>
 `;
+
+    
 
 
     const selectBtn = resultCard.querySelector('.select-book');

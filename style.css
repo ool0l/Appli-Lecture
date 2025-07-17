@@ -304,7 +304,7 @@ header h1 {
   object-fit: contain;
 }
 
-#results .book-card div.info {
+#results .book-card .info {
   flex: 1;
 }
 
