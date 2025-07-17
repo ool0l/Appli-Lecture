@@ -67,17 +67,59 @@ searchBtn.addEventListener('click', async () => {
       book.pageCount = finalPages;
       addBookToList(book);
       closeModal();
+      saveBooks(); // Sauvegarder à l'ajout aussi
     });
 
     resultsDiv.appendChild(resultCard);
   });
 });
 
-function addBookToList(book) {
+// Fonction pour sauvegarder les livres dans localStorage
+function saveBooks() {
+  const booksCurrent = [];
+  document.querySelectorAll('#books-current .book-card').forEach(card => {
+    booksCurrent.push(extractBookData(card));
+  });
+  const booksFinished = [];
+  document.querySelectorAll('#books-finished .book-card').forEach(card => {
+    booksFinished.push(extractBookData(card));
+  });
+  localStorage.setItem('myBooksCurrent', JSON.stringify(booksCurrent));
+  localStorage.setItem('myBooksFinished', JSON.stringify(booksFinished));
+}
+
+// Fonction pour extraire les données d'un livre depuis la carte
+function extractBookData(card) {
+  return {
+    title: card.querySelector('h3').textContent,
+    authors: card.querySelector('p strong').nextSibling.textContent.trim().split(', '),
+    pageCount: parseInt(card.querySelector('p:nth-of-type(2)').textContent.replace(/\D/g, '')) || 0,
+    pagesRead: parseInt(card.querySelector('.pages-read').value) || 0,
+    personalRating: parseInt(card.querySelector('.personal-rating').value) || 0,
+    thumbnail: card.querySelector('img')?.src || null
+  };
+}
+
+// Fonction pour charger les livres depuis localStorage
+function loadBooks() {
+  const booksCurrent = JSON.parse(localStorage.getItem('myBooksCurrent') || '[]');
+  booksCurrent.forEach(book => {
+    addBookToList(book, 'books-current');
+  });
+  const booksFinished = JSON.parse(localStorage.getItem('myBooksFinished') || '[]');
+  booksFinished.forEach(book => {
+    addBookToList(book, 'books-finished', true);
+  });
+}
+
+// Ajouter un livre dans la liste (param 2 = conteneur, 3 = est fini)
+function addBookToList(book, containerId = 'books-current', isFinished = false) {
   const bookCard = document.createElement('div');
   bookCard.className = 'book-card';
 
   const totalPages = book.pageCount || 0;
+  const pagesRead = book.pagesRead || 0;
+  const rating = book.personalRating || 0;
 
   bookCard.innerHTML = `
     <h3>${book.title || "Titre inconnu"}</h3>
@@ -86,39 +128,41 @@ function addBookToList(book) {
 
     <label>
       Pages lues: 
-      <input type="number" class="pages-read" min="0" max="${totalPages}" value="0" style="width:60px;" />
+      <input type="number" class="pages-read" min="0" max="${totalPages}" value="${pagesRead}" style="width:60px;" ${isFinished ? "disabled" : ""} />
     </label>
 
-    <div class="progress-bar-outer">
-      <div class="progress-bar-inner"></div>
+    <div class="progress-bar-outer" style="background:#eee; border-radius:10px; overflow:hidden; height: 20px; margin: 10px 0;">
+      <div class="progress-bar-inner" style="background:#4caf50; height: 100%; width: 0%; transition: width 0.5s ease;"></div>
     </div>
     <p>Progression : <span class="progress">0%</span></p>
 
     <label>
       Note perso (0-10) : 
-      <input type="range" class="personal-rating" min="0" max="10" value="0" step="1" />
-      <span class="rating-value">0</span>/10
+      <input type="range" class="personal-rating" min="0" max="10" value="${rating}" step="1" ${isFinished ? "disabled" : ""} />
+      <span class="rating-value">${rating}</span>/10
     </label>
 
-    ${book.imageLinks?.thumbnail ? `<img src="${book.imageLinks.thumbnail.replace("http://", "https://")}" alt="Couverture" style="max-height: 150px; display: block; margin-top: 10px;">` : ""}
+    ${book.thumbnail ? `<img src="${book.thumbnail}" alt="Couverture" style="max-height: 150px; display: block; margin-top: 10px;">` : ""}
 
-    <button class="delete-book" style="margin-top: 10px;">🗑️ Supprimer</button>
+    ${!isFinished ? `<button class="delete-book" style="margin-top: 10px;">🗑️ Supprimer</button>` : ''}
   `;
 
-  // Bouton suppression
-  const deleteBtn = bookCard.querySelector('.delete-book');
-  deleteBtn.addEventListener('click', () => {
-    if (confirm(`Supprimer "${book.title}" de ta liste ?`)) {
-      bookCard.remove();
-    }
-  });
+  // Supprimer livre (que si pas fini)
+  if (!isFinished) {
+    const deleteBtn = bookCard.querySelector('.delete-book');
+    deleteBtn.addEventListener('click', () => {
+      if(confirm(`Supprimer "${book.title}" ?`)) {
+        bookCard.remove();
+        saveBooks();
+      }
+    });
+  }
 
-  // Barre de progression
   const pagesReadInput = bookCard.querySelector('.pages-read');
   const progressSpan = bookCard.querySelector('.progress');
   const progressBar = bookCard.querySelector('.progress-bar-inner');
 
-  pagesReadInput.addEventListener('input', () => {
+  function updateProgress() {
     let val = parseInt(pagesReadInput.value);
     if (isNaN(val) || val < 0) val = 0;
     if (val > totalPages) val = totalPages;
@@ -127,8 +171,8 @@ function addBookToList(book) {
     progressSpan.textContent = `${percent}%`;
     progressBar.style.width = percent + '%';
 
-    // Confettis + déplacement automatique
-    if (percent === 100 && !bookCard.classList.contains('completed')) {
+    // Confettis + déplacement automatique si livre pas encore fini
+    if (!isFinished && percent === 100 && !bookCard.classList.contains('completed')) {
       bookCard.classList.add('completed');
 
       confetti({
@@ -139,16 +183,31 @@ function addBookToList(book) {
 
       setTimeout(() => {
         document.getElementById('books-finished').appendChild(bookCard);
+        // Désactive les inputs dans "Livres lus"
+        pagesReadInput.disabled = true;
+        ratingInput.disabled = true;
+        saveBooks();
       }, 500);
+    } else {
+      saveBooks();
     }
-  });
+  }
 
-  // Note perso
+  pagesReadInput.addEventListener('input', updateProgress);
+  updateProgress(); // mise à jour initiale
+
+  // Note perso + sauvegarde
   const ratingInput = bookCard.querySelector('.personal-rating');
   const ratingValue = bookCard.querySelector('.rating-value');
   ratingInput.addEventListener('input', () => {
     ratingValue.textContent = ratingInput.value;
+    saveBooks();
   });
 
-  document.getElementById('books-current').appendChild(bookCard);
+  document.getElementById(containerId).appendChild(bookCard);
 }
+
+// Au chargement, restore la liste
+window.addEventListener('load', () => {
+  loadBooks();
+});
