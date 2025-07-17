@@ -3,7 +3,6 @@ const modal = document.getElementById('modal');
 const overlay = document.getElementById('overlay');
 const cancelBtn = document.getElementById('cancel-btn');
 const searchBtn = document.getElementById('search-btn');
-const booksContainer = document.getElementById('books-container');
 const bookInput = document.getElementById('book-title-input');
 
 let resultsDiv = document.getElementById('results');
@@ -91,10 +90,9 @@ function addBookToList(book) {
     </label>
 
     <div class="progress-bar-outer">
-  <div class="progress-bar-inner"></div>
-</div>
-<p>Progression : <span class="progress">0%</span></p>
-
+      <div class="progress-bar-inner"></div>
+    </div>
+    <p>Progression : <span class="progress">0%</span></p>
 
     <label>
       Note perso (0-10) : 
@@ -107,7 +105,7 @@ function addBookToList(book) {
     <button class="delete-book" style="margin-top: 10px;">🗑️ Supprimer</button>
   `;
 
-  // Suppression avec confirmation
+  // Bouton suppression
   const deleteBtn = bookCard.querySelector('.delete-book');
   deleteBtn.addEventListener('click', () => {
     if (confirm(`Supprimer "${book.title}" de ta liste ?`)) {
@@ -115,7 +113,7 @@ function addBookToList(book) {
     }
   });
 
-  // Mise à jour progression en pages lues et barre
+  // Barre de progression
   const pagesReadInput = bookCard.querySelector('.pages-read');
   const progressSpan = bookCard.querySelector('.progress');
   const progressBar = bookCard.querySelector('.progress-bar-inner');
@@ -128,18 +126,29 @@ function addBookToList(book) {
     const percent = totalPages === 0 ? 0 : Math.round((val / totalPages) * 100);
     progressSpan.textContent = `${percent}%`;
     progressBar.style.width = percent + '%';
+
+    // Confettis + déplacement automatique
+    if (percent === 100 && !bookCard.classList.contains('completed')) {
+      bookCard.classList.add('completed');
+
+      confetti({
+        particleCount: 150,
+        spread: 80,
+        origin: { y: 0.6 }
+      });
+
+      setTimeout(() => {
+        document.getElementById('books-finished').appendChild(bookCard);
+      }, 500);
+    }
   });
 
-  // Mise à jour de la note perso
+  // Note perso
   const ratingInput = bookCard.querySelector('.personal-rating');
   const ratingValue = bookCard.querySelector('.rating-value');
   ratingInput.addEventListener('input', () => {
     ratingValue.textContent = ratingInput.value;
   });
 
-  // Remplace cette ligne :
-// booksContainer.appendChild(bookCard);
-
-// Par une insertion dans le bon conteneur, par exemple livres en cours :
-document.getElementById('books-current').appendChild(bookCard);
+  document.getElementById('books-current').appendChild(bookCard);
 }
