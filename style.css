@@ -552,3 +552,6 @@ body.dark .theme-toggle:hover {
   font-size: 20px;
   transition: transform 0.3s ease;
 }
+.theme-toggle .icon {
+  display: inline-block; /* nécessaire pour que la rotation fonctionne bien */
+}

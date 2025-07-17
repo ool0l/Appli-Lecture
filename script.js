@@ -4,6 +4,8 @@ const overlay = document.getElementById('overlay');
 const cancelBtn = document.getElementById('cancel-btn');
 const searchBtn = document.getElementById('search-btn');
 const bookInput = document.getElementById('book-title-input');
+const toggleBtn = document.getElementById('theme-toggle');
+const icon = toggleBtn.querySelector('.icon');
 
 let resultsDiv = document.getElementById('results');
 if (!resultsDiv) {
@@ -12,11 +14,13 @@ if (!resultsDiv) {
   document.querySelector('.modal-content').appendChild(resultsDiv);
 }
 
+// OUVRIR MODAL
 addBookBtn.addEventListener('click', () => {
   modal.classList.remove('hidden');
   overlay.classList.remove('hidden');
 });
 
+// FERMER MODAL
 cancelBtn.addEventListener('click', () => {
   closeModal();
 });
@@ -29,6 +33,7 @@ function closeModal() {
   resultsDiv.innerHTML = "";
 }
 
+// RECHERCHE LIVRES GOOGLE BOOKS
 searchBtn.addEventListener('click', async () => {
   const title = bookInput.value.trim();
   if (!title) return;
@@ -45,8 +50,6 @@ searchBtn.addEventListener('click', async () => {
 
   data.items.forEach((item) => {
     const book = item.volumeInfo;
-
-    // Forcer HTTPS sur l'image thumbnail (Google Books parfois retourne HTTP)
     const thumbnail = book.imageLinks?.thumbnail ? book.imageLinks.thumbnail.replace(/^http:/, 'https:') : null;
 
     const resultCard = document.createElement('div');
@@ -68,17 +71,17 @@ searchBtn.addEventListener('click', async () => {
       const finalPages = !isNaN(manualPages) && manualPages > 0 ? manualPages : (book.pageCount || 0);
 
       book.pageCount = finalPages;
-      book.thumbnail = thumbnail; // ajoute la miniature forcée en https
+      book.thumbnail = thumbnail;
       addBookToList(book);
       closeModal();
-      saveBooks(); // Sauvegarder à l'ajout aussi
+      saveBooks();
     });
 
     resultsDiv.appendChild(resultCard);
   });
 });
 
-// Fonction pour sauvegarder les livres dans localStorage
+// SAUVEGARDE
 function saveBooks() {
   const booksCurrent = [];
   document.querySelectorAll('#books-current .book-card').forEach(card => {
@@ -92,7 +95,7 @@ function saveBooks() {
   localStorage.setItem('myBooksFinished', JSON.stringify(booksFinished));
 }
 
-// Fonction pour extraire les données d'un livre depuis la carte
+// EXTRAIRE DONNÉES D’UNE CARTE
 function extractBookData(card) {
   const title = card.querySelector('h3')?.textContent || 'Titre inconnu';
   const authorsText = card.querySelector('p')?.textContent || '';
@@ -105,46 +108,13 @@ function extractBookData(card) {
     pageCount: parseInt(card.querySelector('p:nth-of-type(2)')?.textContent.replace(/\D/g, '')) || 0,
     pagesRead: parseInt(card.querySelector('.pages-read')?.value) || 0,
     personalRating: parseInt(card.querySelector('.personal-rating')?.value) || 0,
-    personalNote: card.querySelector('.personal-note')?.value || "", 
+    personalNote: card.querySelector('.personal-note')?.value || "",
     thumbnail: card.querySelector('img')?.src?.replace(/^http:/, 'https:') || null,
     tags: Array.from(card.querySelectorAll('.tag')).map(el => el.textContent)
-
   };
 }
 
-
-// Fonction pour charger les livres depuis localStorage
-function loadBooks() {
-  const booksCurrent = JSON.parse(localStorage.getItem('myBooksCurrent') || '[]');
-  booksCurrent.forEach(book => {
-    addBookToList(book, 'books-current');
-  });
-  const booksFinished = JSON.parse(localStorage.getItem('myBooksFinished') || '[]');
-  booksFinished.forEach(book => {
-    addBookToList(book, 'books-finished', true);
-  });
-}
-
-const searchFinishedInput = document.getElementById('search-finished');
-
-if (searchFinishedInput) {
-  searchFinishedInput.addEventListener('input', () => {
-    const filter = searchFinishedInput.value.toLowerCase();
-    const finishedBooks = document.querySelectorAll('#books-finished .book-card');
-
-    finishedBooks.forEach(card => {
-      const title = card.querySelector('h3').textContent.toLowerCase();
-      const authors = card.querySelector('p').textContent.toLowerCase();
-      if (title.includes(filter) || authors.includes(filter)) {
-        card.style.display = '';
-      } else {
-        card.style.display = 'none';
-      }
-    });
-  });
-}
-
-// Ajouter un livre dans la liste (param 2 = conteneur, 3 = est fini)
+// AJOUT DANS L’INTERFACE
 function addBookToList(book, containerId = 'books-current', isFinished = false) {
   const bookCard = document.createElement('div');
   bookCard.className = 'book-card';
@@ -163,8 +133,8 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
       <input type="number" class="pages-read" min="0" max="${totalPages}" value="${pagesRead}" style="width:60px;" ${isFinished ? "disabled" : ""} />
     </label>
 
-    <div class="progress-bar-outer" style="background:#eee; border-radius:10px; overflow:hidden; height: 20px; margin: 10px 0;">
-      <div class="progress-bar-inner" style="background:#4caf50; height: 100%; width: 0%; transition: width 0.5s ease;"></div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner"></div>
     </div>
     <p>Progression : <span class="progress">0%</span></p>
 
@@ -180,25 +150,22 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
     </label>
 
     <div class="book-tags">
-    <label>
-      🏷️ Tags :
-      <input type="text" class="tag-input" placeholder="Ex: Fantastique, Coup de cœur" value="${(book.tags || []).join(', ')}" />
-    </label>
-    <div class="tag-list">${(book.tags || []).map(tag => `<span class="tag">${tag}</span>`).join(' ')}</div>
+      <label>
+        🏷️ Tags :
+        <input type="text" class="tag-input" placeholder="Ex: Fantastique, Coup de cœur" value="${(book.tags || []).join(', ')}" />
+      </label>
+      <div class="tag-list">${(book.tags || []).map(tag => `<span class="tag">${tag}</span>`).join(' ')}</div>
     </div>
-
-
 
     <img src="${book.thumbnail || 'https://dummyimage.com/120x160/cccccc/555555&text=Aucune+image'}" alt="Couverture" style="max-height: 150px; display: block; margin-top: 10px;">
 
-    ${!isFinished ? `<button class="delete-book" style="margin-top: 10px;">🗑️ Supprimer</button>` : ''}
+    ${!isFinished ? `<button class="delete-book">🗑️ Supprimer</button>` : ''}
   `;
 
-  // Supprimer livre (que si pas fini)
   if (!isFinished) {
     const deleteBtn = bookCard.querySelector('.delete-book');
     deleteBtn.addEventListener('click', () => {
-      if(confirm(`Supprimer "${book.title}" ?`)) {
+      if (confirm(`Supprimer "${book.title}" ?`)) {
         bookCard.remove();
         saveBooks();
       }
@@ -218,7 +185,6 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
     progressSpan.textContent = `${percent}%`;
     progressBar.style.width = percent + '%';
 
-    // Confettis + déplacement automatique si livre pas encore fini
     if (!isFinished && percent === 100 && !bookCard.classList.contains('completed')) {
       bookCard.classList.add('completed');
 
@@ -230,7 +196,6 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
 
       setTimeout(() => {
         document.getElementById('books-finished').appendChild(bookCard);
-        // Désactive les inputs dans "Livres lus"
         pagesReadInput.disabled = true;
         ratingInput.disabled = true;
         saveBooks();
@@ -241,9 +206,8 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
   }
 
   pagesReadInput.addEventListener('input', updateProgress);
-  updateProgress(); // mise à jour initiale
+  updateProgress();
 
-  // Note perso + sauvegarde
   const ratingInput = bookCard.querySelector('.personal-rating');
   const ratingValue = bookCard.querySelector('.rating-value');
   ratingInput.addEventListener('input', () => {
@@ -252,48 +216,58 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
   });
 
   const noteInput = bookCard.querySelector('.personal-note');
-    noteInput.addEventListener('input', () => {
-    saveBooks();
-  });
+  noteInput.addEventListener('input', () => saveBooks());
 
   const tagInput = bookCard.querySelector('.tag-input');
-const tagList = bookCard.querySelector('.tag-list');
+  const tagList = bookCard.querySelector('.tag-list');
 
-tagInput.addEventListener('input', () => {
-  const tags = tagInput.value.split(',').map(t => t.trim()).filter(Boolean);
-  tagList.innerHTML = tags.map(tag => `<span class="tag">${tag}</span>`).join(' ');
-  saveBooks();
-});
-
-
+  tagInput.addEventListener('input', () => {
+    const tags = tagInput.value.split(',').map(t => t.trim()).filter(Boolean);
+    tagList.innerHTML = tags.map(tag => `<span class="tag">${tag}</span>`).join(' ');
+    saveBooks();
+  });
 
   document.getElementById(containerId).appendChild(bookCard);
 }
 
-// Au chargement, restore la liste
-window.addEventListener('load', () => {
-  loadBooks();
-});
+// CHARGEMENT DES LIVRES
+function loadBooks() {
+  const booksCurrent = JSON.parse(localStorage.getItem('myBooksCurrent') || '[]');
+  booksCurrent.forEach(book => addBookToList(book, 'books-current'));
 
-const toggleBtn = document.getElementById('theme-toggle');
-const icon = toggleBtn.querySelector('.icon');
+  const booksFinished = JSON.parse(localStorage.getItem('myBooksFinished') || '[]');
+  booksFinished.forEach(book => addBookToList(book, 'books-finished', true));
+}
 
-// Appliquer le thème sauvegardé au chargement
+// FILTRE LIVRES LUS
+const searchFinishedInput = document.getElementById('search-finished');
+if (searchFinishedInput) {
+  searchFinishedInput.addEventListener('input', () => {
+    const filter = searchFinishedInput.value.toLowerCase();
+    document.querySelectorAll('#books-finished .book-card').forEach(card => {
+      const title = card.querySelector('h3').textContent.toLowerCase();
+      const authors = card.querySelector('p').textContent.toLowerCase();
+      card.style.display = title.includes(filter) || authors.includes(filter) ? '' : 'none';
+    });
+  });
+}
+
+// THÈME : chargement et toggle
 window.addEventListener('load', () => {
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme === 'dark') {
     document.body.classList.add('dark');
     icon.textContent = '☀️';
   }
+
+  loadBooks();
 });
 
-// Bascule le thème quand on clique
 toggleBtn.addEventListener('click', () => {
   document.body.classList.toggle('dark');
   const isDark = document.body.classList.contains('dark');
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
 
-  // Animation icône
   icon.style.transition = 'transform 0.5s ease';
   icon.style.transform = 'rotate(360deg)';
 
@@ -302,5 +276,3 @@ toggleBtn.addEventListener('click', () => {
     icon.textContent = isDark ? '☀️' : '🌙';
   }, 500);
 });
-
-
