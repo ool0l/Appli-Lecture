@@ -26,6 +26,7 @@ function closeModal() {
   modal.classList.add('hidden');
   overlay.classList.add('hidden');
   bookInput.value = "";
+  document.getElementById('book-pages-input').value = "";
   resultsDiv.innerHTML = "";
 }
 
@@ -47,40 +48,36 @@ searchBtn.addEventListener('click', async () => {
     const book = item.volumeInfo;
 
     const resultCard = document.createElement('div');
-    resultCard.className = 'book-card';resultCard.innerHTML = `
-  ${book.imageLinks?.thumbnail ? `<img src="${book.imageLinks.thumbnail}" alt="Couverture" style="max-height: 100px;">` : ""}
-  <div class="info">
-    <h4>${book.title || "Titre inconnu"}</h4>
-    <p><strong>Auteur(s):</strong> ${book.authors ? book.authors.join(", ") : "Inconnu"}</p>
-    <p><strong>Pages:</strong> ${book.pageCount || "?"}</p>
-  </div>
-  <button class="select-book">Ajouter ce livre</button>
-`;
-
-    
-
+    resultCard.className = 'book-card';
+    resultCard.innerHTML = `
+      ${book.imageLinks?.thumbnail ? `<img src="${book.imageLinks.thumbnail}" alt="Couverture" style="max-height: 100px;">` : ""}
+      <div class="info">
+        <h4>${book.title || "Titre inconnu"}</h4>
+        <p><strong>Auteur(s):</strong> ${book.authors ? book.authors.join(", ") : "Inconnu"}</p>
+        <p><strong>Pages:</strong> ${book.pageCount || "?"}</p>
+      </div>
+      <button class="select-book">Ajouter ce livre</button>
+    `;
 
     const selectBtn = resultCard.querySelector('.select-book');
-   selectBtn.addEventListener('click', () => {
-  const pagesInput = document.getElementById('book-pages-input');
-  const manualPages = parseInt(pagesInput.value.trim());
-  const finalPages = !isNaN(manualPages) && manualPages > 0 ? manualPages : (book.pageCount || 0);
+    selectBtn.addEventListener('click', () => {
+      const pagesInput = document.getElementById('book-pages-input');
+      const manualPages = parseInt(pagesInput.value.trim());
+      const finalPages = !isNaN(manualPages) && manualPages > 0 ? manualPages : (book.pageCount || 0);
 
-  book.pageCount = finalPages; // Remplace la valeur venant de l'API
-  addBookToList(book);
-  closeModal();
-});
-
+      book.pageCount = finalPages;
+      addBookToList(book);
+      closeModal();
+    });
 
     resultsDiv.appendChild(resultCard);
-  }); selectBtn.
+  });
 });
 
 function addBookToList(book) {
   const bookCard = document.createElement('div');
   bookCard.className = 'book-card';
 
-  // On met pageCount ou 0 pour éviter NaN
   const totalPages = book.pageCount || 0;
 
   bookCard.innerHTML = `
@@ -98,7 +95,6 @@ function addBookToList(book) {
     <button class="delete-book">🗑️ Supprimer</button>
   `;
 
-  // Gestion suppression avec confirmation
   const deleteBtn = bookCard.querySelector('.delete-book');
   deleteBtn.addEventListener('click', () => {
     if (confirm(`Supprimer "${book.title}" de ta liste ?`)) {
@@ -106,7 +102,6 @@ function addBookToList(book) {
     }
   });
 
-  // Gestion mise à jour du % de lecture
   const pagesReadInput = bookCard.querySelector('.pages-read');
   const progressSpan = bookCard.querySelector('.progress');
 
