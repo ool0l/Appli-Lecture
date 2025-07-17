@@ -1,13 +1,13 @@
 :root {
-  --primary-color: #4a90e2;
-  --primary-color-dark: #357ABD;
-  --background-color: #f5f9ff;
+  --primary-color: #1e88e5;
+  --primary-color-dark: #1565c0;
+  --background-color: #f0f2f5;
   --card-bg: #ffffff;
-  --accent: #ff6f61;
-  --text-color: #333;
+  --accent: #ff4081;
+  --text-color: #2c2c2c;
   --radius: 12px;
-  --shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 * {
@@ -24,6 +24,7 @@ body {
   flex-direction: column;
   align-items: center;
   padding: 20px;
+  background: linear-gradient(to bottom, #e3f2fd, #fefefe);
 }
 
 header h1 {
@@ -63,18 +64,19 @@ header h1 {
 
 .book-card {
   background: #fafcff;
-  border-radius: var(--radius);
-  padding: 18px;
-  box-shadow: var(--shadow);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
   user-select: none;
 }
 
 .book-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
 .book-card h3 {
@@ -161,23 +163,25 @@ header h1 {
 }
 
 #add-book-btn {
-  background-color: var(--primary-color);
+  background: linear-gradient(to right, var(--primary-color), var(--primary-color-dark));
   color: white;
   border: none;
-  border-radius: var(--radius);
-  padding: 14px 24px;
+  border-radius: 30px;
+  padding: 16px 26px;
   font-size: 1.1rem;
   font-weight: 700;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
   cursor: pointer;
   margin-top: 20px;
   width: 100%;
   max-width: 280px;
-  transition: background-color 0.3s ease;
+  transition: transform 0.2s ease;
   user-select: none;
 }
 
 #add-book-btn:hover {
   background-color: var(--primary-color-dark);
+  transform: scale(1.05);
 }
 
 .hidden {
