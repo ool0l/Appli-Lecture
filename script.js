@@ -147,7 +147,7 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
       <span class="rating-value">${rating}</span>/10
     </label>
 
-    ${book.thumbnail ? `<img src="${book.thumbnail}" alt="Couverture" style="max-height: 150px; display: block; margin-top: 10px;">` : ""}
+    <img src="${book.thumbnail || 'https://via.placeholder.com/120x160?text=Aucune+image'}" alt="Couverture" style="max-height: 150px; display: block; margin-top: 10px;">
 
     ${!isFinished ? `<button class="delete-book" style="margin-top: 10px;">🗑️ Supprimer</button>` : ''}
   `;
