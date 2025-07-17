@@ -467,3 +467,87 @@ input[type="text"], input[type="number"], input[type="range"], button {
   border-color: var(--accent);
   box-shadow: 0 0 6px var(--accent);
 }
+.book-tags {
+  margin-top: 10px;
+}
+
+.tag-list {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  background-color: var(--primary-color-dark);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  user-select: none;
+}
+.tag-input {
+  margin-top: 6px;
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--primary-color);
+  font-size: 0.95rem;
+}
+.tag-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+/* 🌗 Thème sombre */
+body.dark {
+  background-color: #121212;
+  color: #f1f1f1;
+}
+
+body.dark .book-card {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+}
+
+body.dark input,
+body.dark textarea,
+body.dark select {
+  background-color: #2a2a2a;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+/* 🌕 Switch stylé */
+.theme-toggle {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  background: #ddd;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: background 0.3s ease;
+  z-index: 999;
+}
+
+.theme-toggle:hover {
+  background: #ccc;
+}
+
+body.dark .theme-toggle {
+  background: #333;
+}
+
+body.dark .theme-toggle:hover {
+  background: #444;
+}
+
+.theme-toggle .icon {
+  font-size: 20px;
+  transition: transform 0.3s ease;
+}

@@ -105,8 +105,10 @@ function extractBookData(card) {
     pageCount: parseInt(card.querySelector('p:nth-of-type(2)')?.textContent.replace(/\D/g, '')) || 0,
     pagesRead: parseInt(card.querySelector('.pages-read')?.value) || 0,
     personalRating: parseInt(card.querySelector('.personal-rating')?.value) || 0,
-    personalNote: card.querySelector('.personal-note')?.value || "", // ✅ NOUVEAU
-    thumbnail: card.querySelector('img')?.src?.replace(/^http:/, 'https:') || null
+    personalNote: card.querySelector('.personal-note')?.value || "", 
+    thumbnail: card.querySelector('img')?.src?.replace(/^http:/, 'https:') || null,
+    tags: Array.from(card.querySelectorAll('.tag')).map(el => el.textContent)
+
   };
 }
 
@@ -177,6 +179,15 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
       <textarea class="personal-note" rows="3" placeholder="Ton avis, un résumé, une citation...">${book.personalNote || ""}</textarea>
     </label>
 
+    <div class="book-tags">
+    <label>
+      🏷️ Tags :
+      <input type="text" class="tag-input" placeholder="Ex: Fantastique, Coup de cœur" value="${(book.tags || []).join(', ')}" />
+    </label>
+    <div class="tag-list">${(book.tags || []).map(tag => `<span class="tag">${tag}</span>`).join(' ')}</div>
+    </div>
+
+
 
     <img src="${book.thumbnail || 'https://dummyimage.com/120x160/cccccc/555555&text=Aucune+image'}" alt="Couverture" style="max-height: 150px; display: block; margin-top: 10px;">
 
@@ -245,6 +256,16 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
     saveBooks();
   });
 
+  const tagInput = bookCard.querySelector('.tag-input');
+const tagList = bookCard.querySelector('.tag-list');
+
+tagInput.addEventListener('input', () => {
+  const tags = tagInput.value.split(',').map(t => t.trim()).filter(Boolean);
+  tagList.innerHTML = tags.map(tag => `<span class="tag">${tag}</span>`).join(' ');
+  saveBooks();
+});
+
+
 
   document.getElementById(containerId).appendChild(bookCard);
 }
@@ -253,3 +274,24 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
 window.addEventListener('load', () => {
   loadBooks();
 });
+
+const toggleBtn = document.getElementById('theme-toggle');
+const icon = toggleBtn.querySelector('.icon');
+
+// Appliquer le thème sauvegardé au chargement
+window.addEventListener('load', () => {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    document.body.classList.add('dark');
+    icon.textContent = '☀️';
+  }
+});
+
+// Bascule le thème quand on clique
+toggleBtn.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  const isDark = document.body.classList.contains('dark');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  icon.textContent = isDark ? '☀️' : '🌙';
+});
+
