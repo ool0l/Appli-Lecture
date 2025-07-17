@@ -17,30 +17,29 @@
 
   <main>
     <section id="current-reading">
-    <h2>📘 Livres en cours</h2>
-    <div id="books-current"></div>
-  </section>
+      <h2>📘 Livres en cours</h2>
+      <div id="books-current"></div>
+    </section>
 
-  <section id="finished-reading">
-    <h2>✅ Livres lus</h2>
-    <div id="books-finished"></div>
-  </section>
+    <section id="finished-reading">
+      <h2>✅ Livres lus</h2>
+      <div id="books-finished"></div>
+    </section>
 
-  <button id="add-book-btn">+ Ajouter un livre</button>
+    <button id="add-book-btn">+ Ajouter un livre</button>
 
-      <!-- Modal (popup) -->
-      <div id="modal" class="hidden">
-        <div class="modal-content">
-          <h3>Ajouter un livre</h3>
-          <input type="text" id="book-title-input" placeholder="Titre du livre" />
-          <input type="number" id="book-pages-input" placeholder="Nombre total de pages" />
-          <div class="modal-actions">
-            <button id="cancel-btn">Annuler</button>
-            <button id="search-btn">Rechercher</button>
-          </div>
+    <!-- Modal (popup) -->
+    <div id="modal" class="hidden">
+      <div class="modal-content">
+        <h3>Ajouter un livre</h3>
+        <input type="text" id="book-title-input" placeholder="Titre du livre" />
+        <input type="number" id="book-pages-input" placeholder="Nombre total de pages (optionnel)" />
+        <div class="modal-actions">
+          <button id="cancel-btn">Annuler</button>
+          <button id="search-btn">Rechercher</button>
         </div>
       </div>
-    </section>
+    </div>
   </main>
 
   <script src="script.js"></script>
