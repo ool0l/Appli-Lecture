@@ -6,7 +6,6 @@ const searchBtn = document.getElementById('search-btn');
 const booksContainer = document.getElementById('books-container');
 const bookInput = document.getElementById('book-title-input');
 
-// Crée une div pour afficher les résultats (une seule fois)
 let resultsDiv = document.getElementById('results');
 if (!resultsDiv) {
   resultsDiv = document.createElement('div');
@@ -42,7 +41,7 @@ searchBtn.addEventListener('click', async () => {
     return;
   }
 
-  resultsDiv.innerHTML = ""; // Vide les anciens résultats
+  resultsDiv.innerHTML = "";
 
   data.items.forEach((item) => {
     const book = item.volumeInfo;
@@ -70,17 +69,44 @@ searchBtn.addEventListener('click', async () => {
 function addBookToList(book) {
   const bookCard = document.createElement('div');
   bookCard.className = 'book-card';
+
+  // On met pageCount ou 0 pour éviter NaN
+  const totalPages = book.pageCount || 0;
+
   bookCard.innerHTML = `
     <h3>${book.title || "Titre inconnu"}</h3>
     <p><strong>Auteur(s):</strong> ${book.authors ? book.authors.join(", ") : "Inconnu"}</p>
-    <p><strong>Pages:</strong> ${book.pageCount || "?"}</p>
+    <p><strong>Pages totales:</strong> ${totalPages}</p>
+
+    <label>
+      Pages lues: 
+      <input type="number" class="pages-read" min="0" max="${totalPages}" value="0" style="width:60px;" />
+    </label>
+    <p>Progression: <span class="progress">0%</span></p>
+
     ${book.imageLinks?.thumbnail ? `<img src="${book.imageLinks.thumbnail}" alt="Couverture" style="max-height: 150px;">` : ""}
     <button class="delete-book">🗑️ Supprimer</button>
   `;
 
+  // Gestion suppression avec confirmation
   const deleteBtn = bookCard.querySelector('.delete-book');
   deleteBtn.addEventListener('click', () => {
-    bookCard.remove();
+    if (confirm(`Supprimer "${book.title}" de ta liste ?`)) {
+      bookCard.remove();
+    }
+  });
+
+  // Gestion mise à jour du % de lecture
+  const pagesReadInput = bookCard.querySelector('.pages-read');
+  const progressSpan = bookCard.querySelector('.progress');
+
+  pagesReadInput.addEventListener('input', () => {
+    let val = parseInt(pagesReadInput.value);
+    if (isNaN(val) || val < 0) val = 0;
+    if (val > totalPages) val = totalPages;
+    pagesReadInput.value = val;
+    const percent = totalPages === 0 ? 0 : Math.round((val / totalPages) * 100);
+    progressSpan.textContent = `${percent}%`;
   });
 
   booksContainer.appendChild(bookCard);

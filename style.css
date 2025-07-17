@@ -133,3 +133,10 @@ button:hover {
 .select-book:hover, .delete-book:hover {
   background-color: #5852d6;
 }
+.pages-read {
+  padding: 5px;
+  border-radius: var(--radius);
+  border: 1px solid #ccc;
+  font-size: 14px;
+  margin-left: 8px;
+}
