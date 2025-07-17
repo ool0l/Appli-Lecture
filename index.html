@@ -5,18 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mon journal de lecture</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- Overlay pour le fond flouté -->
   <div id="overlay" class="hidden"></div>
 
   <header>
-    <img src="favicon.ico" alt="Logo" class="logo" />
     <h1>📖 Mon journal de lecture</h1>
+    <button id="theme-toggle">🌙</button>
   </header>
 
   <main>
@@ -31,20 +30,32 @@
       <div id="books-finished"></div>
     </section>
 
+    <section id="stats">
+      <h2>📊 Statistiques</h2>
+      <canvas id="pagesChart" height="100"></canvas>
+      <canvas id="ratingsChart" height="100"></canvas>
+    </section>
+
     <button id="add-book-btn">+ Ajouter un livre</button>
 
-    
-
-    <!-- Modal (popup) -->
     <div id="modal" class="hidden">
       <div class="modal-content">
         <h3>Ajouter un livre</h3>
         <input type="text" id="book-title-input" placeholder="Titre du livre" />
         <input type="number" id="book-pages-input" placeholder="Nombre total de pages (optionnel)" />
+        <select id="book-genre">
+          <option value="">-- Choisir un genre --</option>
+          <option value="Fantastique">📚 Fantastique</option>
+          <option value="Polar">🕵️ Polar</option>
+          <option value="Biographie">📖 Biographie</option>
+          <option value="Roman">📝 Roman</option>
+          <option value="Autre">🔖 Autre</option>
+        </select>
         <div class="modal-actions">
           <button id="cancel-btn">Annuler</button>
           <button id="search-btn">Rechercher</button>
         </div>
+        <div id="results"></div>
       </div>
     </div>
   </main>

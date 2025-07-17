@@ -105,9 +105,11 @@ function extractBookData(card) {
     pageCount: parseInt(card.querySelector('p:nth-of-type(2)')?.textContent.replace(/\D/g, '')) || 0,
     pagesRead: parseInt(card.querySelector('.pages-read')?.value) || 0,
     personalRating: parseInt(card.querySelector('.personal-rating')?.value) || 0,
-    thumbnail: card.querySelector('img')?.src ? card.querySelector('img').src.replace(/^http:/, 'https:') : null
+    personalNote: card.querySelector('.personal-note')?.value || "", // ✅ NOUVEAU
+    thumbnail: card.querySelector('img')?.src?.replace(/^http:/, 'https:') || null
   };
 }
+
 
 // Fonction pour charger les livres depuis localStorage
 function loadBooks() {
@@ -170,6 +172,12 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
       <span class="rating-value">${rating}</span>/10
     </label>
 
+    <label>
+      📝 Note perso :
+      <textarea class="personal-note" rows="3" placeholder="Ton avis, un résumé, une citation...">${book.personalNote || ""}</textarea>
+    </label>
+
+
     <img src="${book.thumbnail || 'https://dummyimage.com/120x160/cccccc/555555&text=Aucune+image'}" alt="Couverture" style="max-height: 150px; display: block; margin-top: 10px;">
 
     ${!isFinished ? `<button class="delete-book" style="margin-top: 10px;">🗑️ Supprimer</button>` : ''}
@@ -231,6 +239,12 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
     ratingValue.textContent = ratingInput.value;
     saveBooks();
   });
+
+  const noteInput = bookCard.querySelector('.personal-note');
+    noteInput.addEventListener('input', () => {
+    saveBooks();
+  });
+
 
   document.getElementById(containerId).appendChild(bookCard);
 }
