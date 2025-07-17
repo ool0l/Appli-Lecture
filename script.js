@@ -6,10 +6,13 @@ const searchBtn = document.getElementById('search-btn');
 const booksContainer = document.getElementById('books-container');
 const bookInput = document.getElementById('book-title-input');
 
-// Crée une div pour afficher les résultats
-const resultsDiv = document.createElement('div');
-resultsDiv.id = 'results';
-document.querySelector('.modal-content').appendChild(resultsDiv);
+// Crée une div pour afficher les résultats (une seule fois)
+let resultsDiv = document.getElementById('results');
+if (!resultsDiv) {
+  resultsDiv = document.createElement('div');
+  resultsDiv.id = 'results';
+  document.querySelector('.modal-content').appendChild(resultsDiv);
+}
 
 addBookBtn.addEventListener('click', () => {
   modal.classList.remove('hidden');
@@ -39,10 +42,11 @@ searchBtn.addEventListener('click', async () => {
     return;
   }
 
-  resultsDiv.innerHTML = ""; // Vide avant nouvelle recherche
+  resultsDiv.innerHTML = ""; // Vide les anciens résultats
 
   data.items.forEach((item) => {
     const book = item.volumeInfo;
+
     const resultCard = document.createElement('div');
     resultCard.className = 'book-card';
     resultCard.innerHTML = `
@@ -53,7 +57,8 @@ searchBtn.addEventListener('click', async () => {
       <button class="select-book">Ajouter ce livre</button>
     `;
 
-    resultCard.querySelector('.select-book').addEventListener('click', () => {
+    const selectBtn = resultCard.querySelector('.select-book');
+    selectBtn.addEventListener('click', () => {
       addBookToList(book);
       closeModal();
     });
@@ -73,7 +78,8 @@ function addBookToList(book) {
     <button class="delete-book">🗑️ Supprimer</button>
   `;
 
-  bookCard.querySelector('.delete-book').addEventListener('click', () => {
+  const deleteBtn = bookCard.querySelector('.delete-book');
+  deleteBtn.addEventListener('click', () => {
     bookCard.remove();
   });
 
