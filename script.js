@@ -90,12 +90,17 @@ function saveBooks() {
 
 // Fonction pour extraire les données d'un livre depuis la carte
 function extractBookData(card) {
+  const title = card.querySelector('h3')?.textContent || 'Titre inconnu';
+  const authorsText = card.querySelector('p')?.textContent || '';
+  const authorsMatch = authorsText.match(/Auteur\(s\):\s(.+)/);
+  const authors = authorsMatch ? authorsMatch[1].split(', ') : [];
+
   return {
-    title: card.querySelector('h3').textContent,
-    authors: card.querySelector('p strong').nextSibling.textContent.trim().split(', '),
-    pageCount: parseInt(card.querySelector('p:nth-of-type(2)').textContent.replace(/\D/g, '')) || 0,
-    pagesRead: parseInt(card.querySelector('.pages-read').value) || 0,
-    personalRating: parseInt(card.querySelector('.personal-rating').value) || 0,
+    title,
+    authors,
+    pageCount: parseInt(card.querySelector('p:nth-of-type(2)')?.textContent.replace(/\D/g, '')) || 0,
+    pagesRead: parseInt(card.querySelector('.pages-read')?.value) || 0,
+    personalRating: parseInt(card.querySelector('.personal-rating')?.value) || 0,
     thumbnail: card.querySelector('img')?.src || null
   };
 }
