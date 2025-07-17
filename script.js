@@ -75,33 +75,40 @@ searchBtn.addEventListener('click', async () => {
 });
 
 function addBookToList(book) {
+  const totalPages = book.pageCount || 0;
   const bookCard = document.createElement('div');
   bookCard.className = 'book-card';
-
-  const totalPages = book.pageCount || 0;
 
   bookCard.innerHTML = `
     <h3>${book.title || "Titre inconnu"}</h3>
     <p><strong>Auteur(s):</strong> ${book.authors ? book.authors.join(", ") : "Inconnu"}</p>
     <p><strong>Pages totales:</strong> ${totalPages}</p>
 
-    <label>
-      Pages lues: 
-      <input type="number" class="pages-read" min="0" max="${totalPages}" value="0" style="width:60px;" />
+    <label>Pages lues :
+      <input type="number" class="pages-read" min="0" max="${totalPages}" value="0" />
     </label>
-    <p>Progression: <span class="progress">0%</span></p>
+    <p>Progression : <span class="progress">0%</span></p>
 
-    ${book.imageLinks?.thumbnail ? `<img src="${book.imageLinks.thumbnail}" alt="Couverture" style="max-height: 150px;">` : ""}
+    <label>Note sur 10 :
+      <input type="number" class="book-rating" min="0" max="10" />
+    </label>
+
+    <label>Commentaire :
+      <textarea class="book-comment" rows="2" placeholder="Ton avis perso..."></textarea>
+    </label>
+
+    ${book.imageLinks?.thumbnail ? `<img src="${book.imageLinks.thumbnail}" alt="Couverture" style="max-height: 120px;">` : ""}
     <button class="delete-book">🗑️ Supprimer</button>
   `;
 
-  const deleteBtn = bookCard.querySelector('.delete-book');
-  deleteBtn.addEventListener('click', () => {
+  // === Suppression avec confirmation ===
+  bookCard.querySelector('.delete-book').addEventListener('click', () => {
     if (confirm(`Supprimer "${book.title}" de ta liste ?`)) {
       bookCard.remove();
     }
   });
 
+  // === Suivi de progression + déplacement si terminé ===
   const pagesReadInput = bookCard.querySelector('.pages-read');
   const progressSpan = bookCard.querySelector('.progress');
 
@@ -110,9 +117,27 @@ function addBookToList(book) {
     if (isNaN(val) || val < 0) val = 0;
     if (val > totalPages) val = totalPages;
     pagesReadInput.value = val;
+
     const percent = totalPages === 0 ? 0 : Math.round((val / totalPages) * 100);
     progressSpan.textContent = `${percent}%`;
+
+    // Si progression à 100%, on déplace dans Livres lus
+    const currentContainer = document.getElementById('books-current');
+    const finishedContainer = document.getElementById('books-finished');
+
+    if (percent === 100 && bookCard.parentElement === currentContainer) {
+      currentContainer.removeChild(bookCard);
+      finishedContainer.appendChild(bookCard);
+    } else if (percent < 100 && bookCard.parentElement === finishedContainer) {
+      finishedContainer.removeChild(bookCard);
+      currentContainer.appendChild(bookCard);
+    }
   });
 
-  booksContainer.appendChild(bookCard);
+  // Ajout initial dans Livres en cours
+  document.getElementById('books-current').appendChild(bookCard);
 }
+
+
+  booksContainer.appendChild(bookCard);
+

@@ -355,3 +355,20 @@ header h1 {
     object-fit: contain;
   }
 }
+section {
+  margin: 20px 0;
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+  margin-top: 4px;
+}
+
+input[type="number"] {
+  margin-top: 4px;
+}
