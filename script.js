@@ -46,10 +46,13 @@ searchBtn.addEventListener('click', async () => {
   data.items.forEach((item) => {
     const book = item.volumeInfo;
 
+    // Forcer HTTPS sur l'image thumbnail (Google Books parfois retourne HTTP)
+    const thumbnail = book.imageLinks?.thumbnail ? book.imageLinks.thumbnail.replace(/^http:/, 'https:') : null;
+
     const resultCard = document.createElement('div');
     resultCard.className = 'book-card';
     resultCard.innerHTML = `
-      ${book.imageLinks?.thumbnail ? `<img src="${book.imageLinks.thumbnail}" alt="Couverture" style="max-height: 100px;">` : ""}
+      ${thumbnail ? `<img src="${thumbnail}" alt="Couverture" style="max-height: 100px;">` : ""}
       <div class="info">
         <h4>${book.title || "Titre inconnu"}</h4>
         <p><strong>Auteur(s):</strong> ${book.authors ? book.authors.join(", ") : "Inconnu"}</p>
@@ -65,6 +68,7 @@ searchBtn.addEventListener('click', async () => {
       const finalPages = !isNaN(manualPages) && manualPages > 0 ? manualPages : (book.pageCount || 0);
 
       book.pageCount = finalPages;
+      book.thumbnail = thumbnail; // ajoute la miniature forcée en https
       addBookToList(book);
       closeModal();
       saveBooks(); // Sauvegarder à l'ajout aussi
@@ -101,7 +105,7 @@ function extractBookData(card) {
     pageCount: parseInt(card.querySelector('p:nth-of-type(2)')?.textContent.replace(/\D/g, '')) || 0,
     pagesRead: parseInt(card.querySelector('.pages-read')?.value) || 0,
     personalRating: parseInt(card.querySelector('.personal-rating')?.value) || 0,
-    thumbnail: card.querySelector('img')?.src || null
+    thumbnail: card.querySelector('img')?.src ? card.querySelector('img').src.replace(/^http:/, 'https:') : null
   };
 }
 
@@ -147,7 +151,7 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
       <span class="rating-value">${rating}</span>/10
     </label>
 
-    <img src="${book.thumbnail || 'https://via.placeholder.com/120x160?text=Aucune+image'}" alt="Couverture" style="max-height: 150px; display: block; margin-top: 10px;">
+    <img src="${book.thumbnail || 'https://dummyimage.com/120x160/cccccc/555555&text=Aucune+image'}" alt="Couverture" style="max-height: 150px; display: block; margin-top: 10px;">
 
     ${!isFinished ? `<button class="delete-book" style="margin-top: 10px;">🗑️ Supprimer</button>` : ''}
   `;
