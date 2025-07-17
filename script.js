@@ -49,12 +49,15 @@ searchBtn.addEventListener('click', async () => {
     const resultCard = document.createElement('div');
     resultCard.className = 'book-card';
     resultCard.innerHTML = `
-      <h4>${book.title || "Titre inconnu"}</h4>
-      <p><strong>Auteur(s):</strong> ${book.authors ? book.authors.join(", ") : "Inconnu"}</p>
-      <p><strong>Pages:</strong> ${book.pageCount || "?"}</p>
-      ${book.imageLinks?.thumbnail ? `<img src="${book.imageLinks.thumbnail}" alt="Couverture" style="max-height: 120px;">` : ""}
-      <button class="select-book">Ajouter ce livre</button>
-    `;
+  ${book.imageLinks?.thumbnail ? `<img src="${book.imageLinks.thumbnail}" alt="Couverture" style="max-height: 100px;">` : ""}
+  <div class="info">
+    <h4>${book.title || "Titre inconnu"}</h4>
+    <p><strong>Auteur(s):</strong> ${book.authors ? book.authors.join(", ") : "Inconnu"}</p>
+    <p><strong>Pages:</strong> ${book.pageCount || "?"}</p>
+  </div>
+  <button class="select-book">Ajouter ce livre</button>
+`;
+
 
     const selectBtn = resultCard.querySelector('.select-book');
     selectBtn.addEventListener('click', () => {
