@@ -1,5 +1,3 @@
-// script.js complet et corrigé avec les statistiques et graphiques sans casser les fonctionnalités existantes
-
 const addBookBtn = document.getElementById('add-book-btn');
 const modal = document.getElementById('modal');
 const overlay = document.getElementById('overlay');
@@ -103,6 +101,10 @@ function extractBookData(card) {
   const authorsMatch = authorsText.match(/Auteur\(s\):\s(.+)/);
   const authors = authorsMatch ? authorsMatch[1].split(', ') : [];
 
+  const tagSpans = card.querySelectorAll('.tag');
+  // Retirer le '❌' du texte des tags si présent
+  const tags = Array.from(tagSpans).map(el => el.textContent.replace('❌', '').trim());
+
   return {
     title,
     authors,
@@ -111,8 +113,30 @@ function extractBookData(card) {
     personalRating: parseInt(card.querySelector('.personal-rating')?.value) || 0,
     personalNote: card.querySelector('.personal-note')?.value || "",
     thumbnail: card.querySelector('img')?.src?.replace(/^http:/, 'https:') || null,
-    tags: Array.from(card.querySelectorAll('.tag')).map(el => el.textContent)
+    tags
   };
+}
+
+function createTagElement(tagText, onDelete) {
+  const span = document.createElement('span');
+  span.className = 'tag';
+  span.textContent = tagText;
+
+  const removeBtn = document.createElement('button');
+  removeBtn.className = 'remove-tag';
+  removeBtn.textContent = '❌';
+  removeBtn.title = "Supprimer ce tag";
+  removeBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); // éviter propagation click
+    if (confirm(`Supprimer le tag "${tagText}" ?`)) {
+      onDelete();
+      span.remove();
+      saveBooks();
+    }
+  });
+
+  span.appendChild(removeBtn);
+  return span;
 }
 
 function addBookToList(book, containerId = 'books-current', isFinished = false) {
@@ -122,6 +146,7 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
   const totalPages = book.pageCount || 0;
   const pagesRead = book.pagesRead || 0;
   const rating = book.personalRating || 0;
+  const tagsArray = book.tags || [];
 
   bookCard.innerHTML = `
     <h3>${book.title || "Titre inconnu"}</h3>
@@ -152,15 +177,50 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
     <div class="book-tags">
       <label>
         🏷️ Tags :
-        <input type="text" class="tag-input" placeholder="Ex: Fantastique, Coup de cœur" value="${(book.tags || []).join(', ')}" />
+        <input type="text" class="tag-input" placeholder="Tape un tag et appuie sur Entrée" />
       </label>
-      <div class="tag-list">${(book.tags || []).map(tag => `<span class="tag">${tag}</span>`).join(' ')}</div>
+      <div class="tag-list"></div>
     </div>
 
     <img src="${book.thumbnail || 'https://dummyimage.com/120x160/cccccc/555555&text=Aucune+image'}" alt="Couverture" style="max-height: 150px; display: block; margin-top: 10px;">
 
     ${!isFinished ? `<button class="delete-book">🗑️ Supprimer</button>` : ''}
   `;
+
+  // Gestion des tags dynamiques
+  const tagInput = bookCard.querySelector('.tag-input');
+  const tagList = bookCard.querySelector('.tag-list');
+  const currentTags = new Set(tagsArray.map(t => t.toLowerCase()));
+
+  function updateTagList() {
+    tagList.innerHTML = '';
+    currentTags.forEach(tag => {
+      // Affichage tag avec première lettre majuscule
+      const displayTag = tag.charAt(0).toUpperCase() + tag.slice(1);
+      tagList.appendChild(createTagElement(displayTag, () => {
+        currentTags.delete(tag);
+        updateTagList();
+        saveBooks();
+      }));
+    });
+  }
+
+  tagInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      let newTag = tagInput.value.trim();
+      if (!newTag) return;
+      newTag = newTag.toLowerCase();
+      if (!currentTags.has(newTag)) {
+        currentTags.add(newTag);
+        tagInput.value = '';
+        updateTagList();
+        saveBooks();
+      }
+    }
+  });
+
+  updateTagList();
 
   if (!isFinished) {
     const deleteBtn = bookCard.querySelector('.delete-book');
@@ -187,6 +247,7 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
 
     if (!isFinished && percent === 100 && !bookCard.classList.contains('completed')) {
       bookCard.classList.add('completed');
+
       confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
 
       setTimeout(() => {
@@ -212,14 +273,6 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
 
   const noteInput = bookCard.querySelector('.personal-note');
   noteInput.addEventListener('input', () => saveBooks());
-
-  const tagInput = bookCard.querySelector('.tag-input');
-  const tagList = bookCard.querySelector('.tag-list');
-  tagInput.addEventListener('input', () => {
-    const tags = tagInput.value.split(',').map(t => t.trim()).filter(Boolean);
-    tagList.innerHTML = tags.map(tag => `<span class="tag">${tag}</span>`).join(' ');
-    saveBooks();
-  });
 
   document.getElementById(containerId).appendChild(bookCard);
 }
@@ -330,4 +383,77 @@ function updateCharts() {
   document.getElementById('booksReadCount').textContent = `Livres terminés : ${booksReadCount}`;
   document.getElementById('longestBook').textContent = `📚 Livre le plus long : ${longestBook.title} (${longestBook.pageCount} pages)`;
   document.getElementById('bestRatedBook').textContent = `⭐ Meilleure note : ${bestRatedBook.title} (${bestRatedBook.personalRating}/10)`;
+}
+
+document.getElementById('generate-recommendations').addEventListener('click', generateRecommendations);
+
+async function generateRecommendations() {
+  const books = JSON.parse(localStorage.getItem('myBooksFinished') || '[]');
+  const currentBooks = JSON.parse(localStorage.getItem('myBooksCurrent') || '[]');
+  const allBooksTitles = [...books, ...currentBooks].map(b => b.title?.toLowerCase());
+
+  const likedBooks = books.filter(b => b.personalRating >= 7);
+
+  const tags = likedBooks.flatMap(b => b.tags || []);
+  const authors = likedBooks.flatMap(b => b.authors || []);
+
+  const commonTags = getMostFrequentMultiple(tags, 2); // jusqu'à 2 tags
+  const commonAuthor = getMostFrequent(authors);
+
+  let queryParts = [...commonTags];
+  if (commonAuthor) queryParts.push(`inauthor:${commonAuthor}`);
+  if (queryParts.length === 0) {
+    document.getElementById('recommendation-results').innerHTML = "<p>Aucune donnée suffisante pour recommander un livre.</p>";
+    return;
+  }
+
+  const query = queryParts.join(' ');
+  const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10`);
+  const data = await response.json();
+
+  const resultContainer = document.getElementById('recommendation-results');
+  resultContainer.innerHTML = '';
+
+  if (!data.items || data.items.length === 0) {
+    resultContainer.innerHTML = "<p>Aucun livre trouvé pour la recommandation.</p>";
+    return;
+  }
+
+  data.items.forEach(item => {
+    const info = item.volumeInfo;
+    const title = info.title?.toLowerCase() || '';
+    if (allBooksTitles.includes(title)) return; // ❌ éviter les livres déjà lus
+
+    const thumbnail = info.imageLinks?.thumbnail?.replace(/^http:/, 'https:') || '';
+    const authors = info.authors || ['Inconnu'];
+    const pageCount = info.pageCount || 0;
+
+    const card = document.createElement('div');
+    card.className = 'book-card';
+    card.innerHTML = `
+      ${thumbnail ? `<img src="${thumbnail}" alt="Couverture" style="max-height: 100px;">` : ''}
+      <h4>${info.title || 'Titre inconnu'}</h4>
+      <p><strong>Auteur(s):</strong> ${authors.join(', ')}</p>
+      <p><strong>Pages:</strong> ${pageCount}</p>
+    `;
+
+    resultContainer.appendChild(card);
+  });
+}
+
+function getMostFrequent(arr) {
+  if (!arr.length) return null;
+  const counts = {};
+  arr.forEach(x => counts[x] = (counts[x] || 0) + 1);
+  return Object.entries(counts).sort((a,b) => b[1] - a[1])[0][0];
+}
+
+function getMostFrequentMultiple(arr, maxCount) {
+  if (!arr.length) return [];
+  const counts = {};
+  arr.forEach(x => counts[x] = (counts[x] || 0) + 1);
+  return Object.entries(counts)
+    .sort((a,b) => b[1] - a[1])
+    .slice(0, maxCount)
+    .map(e => e[0]);
 }

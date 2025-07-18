@@ -726,4 +726,21 @@ body.dark .book-card h3 {
 body.dark #stats {
   background-color: #1c1c1c;
 }
+.tag {
+  background-color: #eee;
+  padding: 5px 10px;
+  border-radius: 15px;
+  margin: 5px;
+  display: inline-block;
+  position: relative;
+}
+
+.tag button.remove-tag {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-left: 5px;
+  font-size: 0.9em;
+  color: red;
+}
 
