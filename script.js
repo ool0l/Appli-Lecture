@@ -14,13 +14,11 @@ if (!resultsDiv) {
   document.querySelector('.modal-content').appendChild(resultsDiv);
 }
 
-// OUVRIR MODAL
 addBookBtn.addEventListener('click', () => {
   modal.classList.remove('hidden');
   overlay.classList.remove('hidden');
 });
 
-// FERMER MODAL
 cancelBtn.addEventListener('click', () => {
   closeModal();
 });
@@ -33,7 +31,6 @@ function closeModal() {
   resultsDiv.innerHTML = "";
 }
 
-// RECHERCHE LIVRES GOOGLE BOOKS
 searchBtn.addEventListener('click', async () => {
   const title = bookInput.value.trim();
   if (!title) return;
@@ -81,21 +78,23 @@ searchBtn.addEventListener('click', async () => {
   });
 });
 
-// SAUVEGARDE
 function saveBooks() {
   const booksCurrent = [];
   document.querySelectorAll('#books-current .book-card').forEach(card => {
     booksCurrent.push(extractBookData(card));
   });
+
   const booksFinished = [];
   document.querySelectorAll('#books-finished .book-card').forEach(card => {
     booksFinished.push(extractBookData(card));
   });
+
   localStorage.setItem('myBooksCurrent', JSON.stringify(booksCurrent));
   localStorage.setItem('myBooksFinished', JSON.stringify(booksFinished));
+
+  updateCharts();
 }
 
-// EXTRAIRE DONNÉES D’UNE CARTE
 function extractBookData(card) {
   const title = card.querySelector('h3')?.textContent || 'Titre inconnu';
   const authorsText = card.querySelector('p')?.textContent || '';
@@ -114,7 +113,6 @@ function extractBookData(card) {
   };
 }
 
-// AJOUT DANS L’INTERFACE
 function addBookToList(book, containerId = 'books-current', isFinished = false) {
   const bookCard = document.createElement('div');
   bookCard.className = 'book-card';
@@ -188,11 +186,7 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
     if (!isFinished && percent === 100 && !bookCard.classList.contains('completed')) {
       bookCard.classList.add('completed');
 
-      confetti({
-        particleCount: 150,
-        spread: 80,
-        origin: { y: 0.6 }
-      });
+      confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
 
       setTimeout(() => {
         document.getElementById('books-finished').appendChild(bookCard);
@@ -230,16 +224,16 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
   document.getElementById(containerId).appendChild(bookCard);
 }
 
-// CHARGEMENT DES LIVRES
 function loadBooks() {
   const booksCurrent = JSON.parse(localStorage.getItem('myBooksCurrent') || '[]');
   booksCurrent.forEach(book => addBookToList(book, 'books-current'));
 
   const booksFinished = JSON.parse(localStorage.getItem('myBooksFinished') || '[]');
   booksFinished.forEach(book => addBookToList(book, 'books-finished', true));
+
+  updateCharts();
 }
 
-// FILTRE LIVRES LUS
 const searchFinishedInput = document.getElementById('search-finished');
 if (searchFinishedInput) {
   searchFinishedInput.addEventListener('input', () => {
@@ -252,7 +246,6 @@ if (searchFinishedInput) {
   });
 }
 
-// THÈME : chargement et toggle
 window.addEventListener('load', () => {
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme === 'dark') {
@@ -276,3 +269,74 @@ toggleBtn.addEventListener('click', () => {
     icon.textContent = isDark ? '☀️' : '🌙';
   }, 500);
 });
+
+function updateCharts() {
+  const books = JSON.parse(localStorage.getItem('myBooksFinished') || '[]');
+
+  const labels = books.map(b => b.title);
+  const pagesData = books.map(b => b.pageCount || 0);
+  const ratingsData = books.map(b => b.personalRating || 0);
+
+  if (window.pagesChart) window.pagesChart.destroy();
+  if (window.ratingsChart) window.ratingsChart.destroy();
+
+  const ctxPages = document.getElementById('pagesChart').getContext('2d');
+  window.pagesChart = new Chart(ctxPages, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{ label: 'Pages lues', data: pagesData, backgroundColor: '#42a5f5' }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: 'Pages lues par livre' }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { precision: 0 } }
+      }
+    }
+  });
+
+  const ctxRatings = document.getElementById('ratingsChart').getContext('2d');
+  window.ratingsChart = new Chart(ctxRatings, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Note personnelle',
+        data: ratingsData,
+        borderColor: '#ff4081',
+        backgroundColor: '#f48fb1',
+        tension: 0.3,
+        fill: false
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: { display: true, text: 'Notes personnelles des livres lus' }
+      },
+      scales: {
+        y: { min: 0, max: 10, ticks: { stepSize: 1 } }
+      }
+    }
+  });
+
+  const totalPages = pagesData.reduce((acc, val) => acc + val, 0);
+  const ratedBooks = ratingsData.filter(r => r > 0);
+  const averageRating = ratedBooks.length > 0
+    ? (ratedBooks.reduce((acc, val) => acc + val, 0) / ratedBooks.length).toFixed(1)
+    : 'N/A';
+  const booksReadCount = books.length;
+
+  const longestBook = books.reduce((max, book) => book.pageCount > max.pageCount ? book : max, { pageCount: 0 });
+  const bestRatedBook = books.reduce((best, book) => book.personalRating > best.personalRating ? book : best, { personalRating: 0 });
+
+  document.getElementById('totalPages').textContent = `Total de pages lues : ${totalPages}`;
+  document.getElementById('averageRating').textContent = `Note moyenne : ${averageRating}`;
+  document.getElementById('booksReadCount').textContent = `Livres terminés : ${booksReadCount}`;
+  document.getElementById('longestBook').textContent = `📚 Livre le plus long : ${longestBook.title} (${longestBook.pageCount} pages)`;
+  document.getElementById('bestRatedBook').textContent = `⭐ Meilleure note : ${bestRatedBook.title} (${bestRatedBook.personalRating}/10)`;
+}

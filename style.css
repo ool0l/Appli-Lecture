@@ -714,4 +714,16 @@ body.dark .book-card p,
 body.dark .book-card h3 {
   color: #eee !important;
 }
+#stats {
+  background: #fefefe;
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-top: 30px;
+  max-width: 900px;
+}
+
+body.dark #stats {
+  background-color: #1c1c1c;
+}
 
