@@ -1,3 +1,5 @@
+// script.js complet et corrigé avec les statistiques et graphiques sans casser les fonctionnalités existantes
+
 const addBookBtn = document.getElementById('add-book-btn');
 const modal = document.getElementById('modal');
 const overlay = document.getElementById('overlay');
@@ -185,7 +187,6 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
 
     if (!isFinished && percent === 100 && !bookCard.classList.contains('completed')) {
       bookCard.classList.add('completed');
-
       confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
 
       setTimeout(() => {
@@ -214,7 +215,6 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
 
   const tagInput = bookCard.querySelector('.tag-input');
   const tagList = bookCard.querySelector('.tag-list');
-
   tagInput.addEventListener('input', () => {
     const tags = tagInput.value.split(',').map(t => t.trim()).filter(Boolean);
     tagList.innerHTML = tags.map(tag => `<span class="tag">${tag}</span>`).join(' ');
@@ -227,10 +227,8 @@ function addBookToList(book, containerId = 'books-current', isFinished = false) 
 function loadBooks() {
   const booksCurrent = JSON.parse(localStorage.getItem('myBooksCurrent') || '[]');
   booksCurrent.forEach(book => addBookToList(book, 'books-current'));
-
   const booksFinished = JSON.parse(localStorage.getItem('myBooksFinished') || '[]');
   booksFinished.forEach(book => addBookToList(book, 'books-finished', true));
-
   updateCharts();
 }
 
@@ -252,7 +250,6 @@ window.addEventListener('load', () => {
     document.body.classList.add('dark');
     icon.textContent = '☀️';
   }
-
   loadBooks();
 });
 
@@ -260,10 +257,8 @@ toggleBtn.addEventListener('click', () => {
   document.body.classList.toggle('dark');
   const isDark = document.body.classList.contains('dark');
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
-
   icon.style.transition = 'transform 0.5s ease';
   icon.style.transform = 'rotate(360deg)';
-
   setTimeout(() => {
     icon.style.transform = 'rotate(0deg)';
     icon.textContent = isDark ? '☀️' : '🌙';
@@ -272,13 +267,12 @@ toggleBtn.addEventListener('click', () => {
 
 function updateCharts() {
   const books = JSON.parse(localStorage.getItem('myBooksFinished') || '[]');
-
   const labels = books.map(b => b.title);
   const pagesData = books.map(b => b.pageCount || 0);
   const ratingsData = books.map(b => b.personalRating || 0);
 
-  if (window.pagesChart) window.pagesChart.destroy();
-  if (window.ratingsChart) window.ratingsChart.destroy();
+  if (window.pagesChart && typeof window.pagesChart.destroy === 'function') window.pagesChart.destroy();
+  if (window.ratingsChart && typeof window.ratingsChart.destroy === 'function') window.ratingsChart.destroy();
 
   const ctxPages = document.getElementById('pagesChart').getContext('2d');
   window.pagesChart = new Chart(ctxPages, {
@@ -326,11 +320,8 @@ function updateCharts() {
 
   const totalPages = pagesData.reduce((acc, val) => acc + val, 0);
   const ratedBooks = ratingsData.filter(r => r > 0);
-  const averageRating = ratedBooks.length > 0
-    ? (ratedBooks.reduce((acc, val) => acc + val, 0) / ratedBooks.length).toFixed(1)
-    : 'N/A';
+  const averageRating = ratedBooks.length > 0 ? (ratedBooks.reduce((acc, val) => acc + val, 0) / ratedBooks.length).toFixed(1) : 'N/A';
   const booksReadCount = books.length;
-
   const longestBook = books.reduce((max, book) => book.pageCount > max.pageCount ? book : max, { pageCount: 0 });
   const bestRatedBook = books.reduce((best, book) => book.personalRating > best.personalRating ? book : best, { personalRating: 0 });
 
